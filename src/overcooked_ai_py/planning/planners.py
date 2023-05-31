@@ -986,7 +986,7 @@ class JointMotionPlanner(object):
         # (not on objects and other aspects of state).
         # Also assumes can't deliver more than two orders in one motion goal
         # (otherwise Environment will terminate)
-        from src.overcooked_ai_py.mdp.overcooked_env import OvercookedEnv
+        from overcooked_ai_py.mdp.overcooked_env import OvercookedEnv
 
         dummy_state = OvercookedState.from_players_pos_and_or(
             joint_start_state, all_orders=self.mdp.start_all_orders
