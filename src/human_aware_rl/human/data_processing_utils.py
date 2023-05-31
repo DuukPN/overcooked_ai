@@ -165,6 +165,8 @@ def convert_joint_df_trajs_to_overcooked_single(
     human_indices = []
     num_trials_for_layout = {}
     for layout_name in layouts:
+        OvercookedGridworld.from_layout_name(layout_name)
+
         trial_ids = np.unique(
             main_trials[main_trials["layout_name"] == layout_name]["trial_id"]
         )

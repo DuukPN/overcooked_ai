@@ -9,8 +9,8 @@ import warnings
 import numpy as np
 import tensorflow as tf
 
-from human_aware_rl.human.process_dataframes import get_trajs_from_data
-from human_aware_rl.imitation.behavior_cloning_tf2 import (
+from ...human_aware_rl.human.process_dataframes import get_trajs_from_data
+from ...human_aware_rl.imitation.behavior_cloning_tf2 import (
     BC_SAVE_DIR,
     build_bc_model,
     evaluate_bc_model,
@@ -19,11 +19,11 @@ from human_aware_rl.imitation.behavior_cloning_tf2 import (
     save_bc_model,
     train_bc_model,
 )
-from human_aware_rl.static import (
+from ...human_aware_rl.static import (
     BC_EXPECTED_DATA_PATH,
     DUMMY_2019_CLEAN_HUMAN_DATA_PATH,
 )
-from human_aware_rl.utils import set_global_seed
+from ...human_aware_rl.utils import set_global_seed
 
 
 def _clear_pickle():

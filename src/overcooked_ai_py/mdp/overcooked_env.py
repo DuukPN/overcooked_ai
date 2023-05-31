@@ -4,22 +4,22 @@ import gym
 import numpy as np
 import tqdm
 
-from overcooked_ai_py.mdp.actions import Action
-from overcooked_ai_py.mdp.overcooked_mdp import (
+from src.overcooked_ai_py.mdp.actions import Action
+from src.overcooked_ai_py.mdp.overcooked_mdp import (
     EVENT_TYPES,
     OvercookedGridworld,
 )
-from overcooked_ai_py.mdp.overcooked_trajectory import (
+from src.overcooked_ai_py.mdp.overcooked_trajectory import (
     DEFAULT_TRAJ_KEYS,
     EPISODE_TRAJ_KEYS,
     TIMESTEP_TRAJ_KEYS,
 )
-from overcooked_ai_py.planning.planners import (
+from src.overcooked_ai_py.planning.planners import (
     NO_COUNTERS_PARAMS,
     MediumLevelActionManager,
     MotionPlanner,
 )
-from overcooked_ai_py.utils import append_dictionaries, mean_and_std_err
+from src.overcooked_ai_py.utils import append_dictionaries, mean_and_std_err
 
 DEFAULT_ENV_PARAMS = {"horizon": 400}
 
@@ -577,7 +577,7 @@ class OvercookedEnv(object):
         )
 
         # TODO: should probably transfer check methods over to Env class
-        from overcooked_ai_py.agents.benchmarking import AgentEvaluator
+        from src.overcooked_ai_py.agents.benchmarking import AgentEvaluator
 
         AgentEvaluator.check_trajectories(trajectories, verbose=info)
         return trajectories

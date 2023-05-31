@@ -1,8 +1,8 @@
 import os
-import pickle
+import pickle5 as pickle
 
-from overcooked_ai_py.static import PLANNERS_DIR
-from overcooked_ai_py.utils import load_dict_from_file
+from src.overcooked_ai_py.static import PLANNERS_DIR
+from src.overcooked_ai_py.utils import load_dict_from_file
 
 
 def load_saved_action_manager(filename):

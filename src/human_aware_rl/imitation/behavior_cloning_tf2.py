@@ -663,8 +663,8 @@ class BehaviorCloningPolicy(RllibPolicy):
 
 if __name__ == "__main__":
     params = get_bc_params()
-    model = train_bc_model(
-        os.path.join(BC_SAVE_DIR, "default"), params, verbose=True
-    )
-    # Evaluate our model's performance in a rollout
-    evaluate_bc_model(model, params)
+    path = os.path.join(BC_SAVE_DIR, "default")
+    model = load_bc_model(path, verbose=True)
+    # model = train_bc_model(path, params, verbose=True)
+     # Evaluate our model's performance in a rollout
+    print(f"Reward: {evaluate_bc_model(model, params, verbose=True)}")

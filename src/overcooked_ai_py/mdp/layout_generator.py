@@ -3,9 +3,9 @@ import random
 
 import numpy as np
 
-from overcooked_ai_py.mdp.actions import Action, Direction
-from overcooked_ai_py.mdp.overcooked_mdp import OvercookedGridworld, Recipe
-from overcooked_ai_py.utils import rnd_int_uniform, rnd_uniform
+from src.overcooked_ai_py.mdp.actions import Action, Direction
+from src.overcooked_ai_py.mdp.overcooked_mdp import OvercookedGridworld, Recipe
+from src.overcooked_ai_py.utils import rnd_int_uniform, rnd_uniform
 
 EMPTY = " "
 COUNTER = "X"

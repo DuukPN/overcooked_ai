@@ -9,6 +9,11 @@ import numpy as np
 import pandas as pd
 from numpy.core.numeric import full
 
+import os
+import sys
+# Add the parent directory of mypackage to the Python path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
 from human_aware_rl.human.data_processing_utils import (
     convert_joint_df_trajs_to_overcooked_single,
     df_traj_to_python_joint_traj,
@@ -60,11 +65,11 @@ def get_human_human_trajectories(
     for layout in layouts:
         curr_data_path = _get_data_path(layout, dataset_type, data_path)
         data_path_to_layouts[curr_data_path].append(layout)
-
+    print(data_path_to_layouts)
     # For each data path, load data once and parse trajectories for all corresponding layouts
     for data_path in data_path_to_layouts:
         curr_data = get_trajs_from_data(
-            curr_data_path, layouts=[layout], **kwargs
+            data_path, layouts=data_path_to_layouts[data_path], **kwargs
         )[0]
         data = append_trajectories(data, curr_data)
 

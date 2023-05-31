@@ -5,20 +5,20 @@ import time
 
 import numpy as np
 
-from overcooked_ai_py.data.planners import (
+from src.overcooked_ai_py.data.planners import (
     PLANNERS_DIR,
     load_saved_action_manager,
     load_saved_motion_planner,
 )
-from overcooked_ai_py.mdp.actions import Action, Direction
-from overcooked_ai_py.mdp.overcooked_mdp import (
+from src.overcooked_ai_py.mdp.actions import Action, Direction
+from src.overcooked_ai_py.mdp.overcooked_mdp import (
     EVENT_TYPES,
     OvercookedGridworld,
     OvercookedState,
     PlayerState,
 )
-from overcooked_ai_py.planning.search import Graph, NotConnectedError
-from overcooked_ai_py.utils import manhattan_distance
+from src.overcooked_ai_py.planning.search import Graph, NotConnectedError
+from src.overcooked_ai_py.utils import manhattan_distance
 
 # Run planning logic with additional checks and
 # computation to prevent or identify possible minor errors
@@ -986,7 +986,7 @@ class JointMotionPlanner(object):
         # (not on objects and other aspects of state).
         # Also assumes can't deliver more than two orders in one motion goal
         # (otherwise Environment will terminate)
-        from overcooked_ai_py.mdp.overcooked_env import OvercookedEnv
+        from src.overcooked_ai_py.mdp.overcooked_env import OvercookedEnv
 
         dummy_state = OvercookedState.from_players_pos_and_or(
             joint_start_state, all_orders=self.mdp.start_all_orders
