@@ -12,9 +12,13 @@ from human_aware_rl.static import (
 )
 import human_aware_rl.rllib.rllib as rllib
 import numpy as np
+import threading
+
+current_file_dir = os.path.dirname(os.path.abspath(__file__))
+bc_dir = os.path.join(current_file_dir, "bc_runs", "train")
 
 
-def evaluate_bc_model(model_1_dir, model_2_dir, bc_params, verbose=True):
+def evaluate_bc_model(name, model_1_dir, model_2_dir, bc_params, verbose=True):
     """
     Creates an AgentPair object containing two instances of BC Agents, whose policies are specified by `model`. Runs
     a rollout using AgentEvaluator class in an environment specified by bc_params
@@ -61,8 +65,13 @@ def evaluate_bc_model(model_1_dir, model_2_dir, bc_params, verbose=True):
     # Compute the average sparse return obtained in each rollout
     avg_reward = np.mean(results["ep_returns"])
     sd_reward = np.std(results["ep_returns"])
+
+    f = open(os.path.join(bc_dir, results, f"{name}.txt"))
+    f.write(str(results))
+
+    print(f"Successfully completed {name} evaluation")
     print(f"Reward: {avg_reward}, standard deviation: {sd_reward}")
-    print(results["ep_returns"])
+
     return results
 
 
@@ -70,9 +79,6 @@ if __name__ == "__main__":
     # random 3 is counter_circuit
     # random 0 is forced coordination
 
-    current_file_dir = os.path.dirname(os.path.abspath(__file__))
-    # this is where
-    bc_dir = os.path.join(current_file_dir, "bc_runs", "train")
     my_agent_dir = os.path.join(bc_dir, "my_agent")
     # if os.path.isdir(bc_dir):
     #     # if this bc agent has been created, we continue to the next layout
@@ -84,8 +90,6 @@ if __name__ == "__main__":
         "random0": 90,  # forced coordination
         "asymmetric_advantages": 120,
     }
-
-    f = open(os.path.join(bc_dir, "results.txt"), "w")
 
     for layout in [
                 "random3",  # counter circuit
@@ -107,15 +111,13 @@ if __name__ == "__main__":
         bc_params = get_bc_params(**params_to_override)
         curr_dir_1, curr_dir_2 = os.path.join(bc_dir, f"{layout}_1"), os.path.join(bc_dir, f"{layout}_2")
         if not os.path.isdir(curr_dir_1):
-            train_bc_model(curr_dir_1, bc_params, verbose=True)
+            threading.Thread(target=train_bc_model, args=(curr_dir_1, bc_params, True)).start()
+            # train_bc_model(curr_dir_1, bc_params, verbose=True)
         if not os.path.isdir(curr_dir_2):
-            train_bc_model(curr_dir_2, bc_params, verbose=True)
-        print(f"done training {layout} agents")
-        # results = evaluate_bc_model(curr_dir_1, curr_dir_2, bc_params)
-        # f.write(f"============================\n{layout}\n============================\n")
-        # f.write(str(results))
-        # f.write("\n\nSwitched indices:\n")
-        # results = evaluate_bc_model(curr_dir_2, curr_dir_1, bc_params)
-        # f.write(str(results))
-        # f.write("\n\n")
-        # print(f"done evaluating {layout} agents")
+            threading.Thread(target=train_bc_model, args=(curr_dir_2, bc_params, True)).start()
+            # train_bc_model(curr_dir_2, bc_params, verbose=True)
+
+        threading.Thread(target=evaluate_bc_model, args=(f"{layout}_1", curr_dir_1, curr_dir_2, bc_params)).start()
+        # results = evaluate_bc_model(f"{layout}_1", curr_dir_1, curr_dir_2, bc_params)
+        threading.Thread(target=evaluate_bc_model, args=(f"{layout}_2", curr_dir_2, curr_dir_1, bc_params)).start()
+        # results = evaluate_bc_model(f"{layout}_2", curr_dir_2, curr_dir_1, bc_params)

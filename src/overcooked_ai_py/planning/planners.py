@@ -5,20 +5,20 @@ import time
 
 import numpy as np
 
-from src.overcooked_ai_py.data.planners import (
+from overcooked_ai_py.data.planners import (
     PLANNERS_DIR,
     load_saved_action_manager,
     load_saved_motion_planner,
 )
-from src.overcooked_ai_py.mdp.actions import Action, Direction
-from src.overcooked_ai_py.mdp.overcooked_mdp import (
+from overcooked_ai_py.mdp.actions import Action, Direction
+from overcooked_ai_py.mdp.overcooked_mdp import (
     EVENT_TYPES,
     OvercookedGridworld,
     OvercookedState,
     PlayerState,
 )
-from src.overcooked_ai_py.planning.search import Graph, NotConnectedError
-from src.overcooked_ai_py.utils import manhattan_distance
+from overcooked_ai_py.planning.search import Graph, NotConnectedError
+from overcooked_ai_py.utils import manhattan_distance
 
 # Run planning logic with additional checks and
 # computation to prevent or identify possible minor errors

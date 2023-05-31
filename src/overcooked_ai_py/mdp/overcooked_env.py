@@ -4,22 +4,22 @@ import gym
 import numpy as np
 import tqdm
 
-from src.overcooked_ai_py.mdp.actions import Action
-from src.overcooked_ai_py.mdp.overcooked_mdp import (
+from overcooked_ai_py.mdp.actions import Action
+from overcooked_ai_py.mdp.overcooked_mdp import (
     EVENT_TYPES,
     OvercookedGridworld,
 )
-from src.overcooked_ai_py.mdp.overcooked_trajectory import (
+from overcooked_ai_py.mdp.overcooked_trajectory import (
     DEFAULT_TRAJ_KEYS,
     EPISODE_TRAJ_KEYS,
     TIMESTEP_TRAJ_KEYS,
 )
-from src.overcooked_ai_py.planning.planners import (
+from overcooked_ai_py.planning.planners import (
     NO_COUNTERS_PARAMS,
     MediumLevelActionManager,
     MotionPlanner,
 )
-from src.overcooked_ai_py.utils import append_dictionaries, mean_and_std_err
+from overcooked_ai_py.utils import append_dictionaries, mean_and_std_err
 
 DEFAULT_ENV_PARAMS = {"horizon": 400}
 
