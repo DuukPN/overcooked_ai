@@ -383,7 +383,7 @@ def _build_lstm_model(
     mlp_params,
     cell_size,
     max_seq_len=20,
-    **kwargs
+    **kwargs,
 ):
     ## Inputs
     obs_in = keras.Input(
@@ -563,7 +563,7 @@ class BehaviorCloningPolicy(RllibPolicy):
         prev_reward_batch=None,
         info_batch=None,
         episodes=None,
-        **kwargs
+        **kwargs,
     ):
         """
         Computes sampled actions for each of the corresponding OvercookedEnv states in obs_batch
@@ -666,5 +666,5 @@ if __name__ == "__main__":
     path = os.path.join(BC_SAVE_DIR, "default")
     model = load_bc_model(path, verbose=True)
     # model = train_bc_model(path, params, verbose=True)
-     # Evaluate our model's performance in a rollout
+    # Evaluate our model's performance in a rollout
     print(f"Reward: {evaluate_bc_model(model, params, verbose=True)}")

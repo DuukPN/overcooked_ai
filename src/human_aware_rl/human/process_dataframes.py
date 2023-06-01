@@ -9,11 +9,6 @@ import numpy as np
 import pandas as pd
 from numpy.core.numeric import full
 
-import os
-import sys
-# Add the parent directory of mypackage to the Python path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-
 from human_aware_rl.human.data_processing_utils import (
     convert_joint_df_trajs_to_overcooked_single,
     df_traj_to_python_joint_traj,

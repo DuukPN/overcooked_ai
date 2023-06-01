@@ -3,9 +3,9 @@
 #SBATCH --job-name="bc_experiment"
 #SBATCH --partition=compute
 #SBATCH --time=10:00:00
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=2
-#SBATCH --mem-per-cpu=48GB
+#SBATCH --ntasks=10
+#SBATCH --cpus-per-task=1
+#SBATCH --mem-per-cpu=8GB
 #SBATCH --account=Education-EEMCS-Courses-CSE3000
 
 module load 2022r2
@@ -14,4 +14,8 @@ module load miniconda3
 conda deactivate
 conda activate /home/dniemantsverdr/env
 
-srun python ~/overcooked_ai/src/human_aware_rl/imitation/my_experiments.py
+for layout in "random3" "coordination_ring" "cramped_room" "random0" "asymmetric_advantages"
+do
+  srun python ~/overcooked_ai/src/human_aware_rl/imitation/my_experiments.py $layout
+  srun python ~/overcooked_ai/src/human_aware_rl/imitation/my_experiments.py $layout -s
+done
