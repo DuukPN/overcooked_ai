@@ -14,6 +14,7 @@ import human_aware_rl.rllib.rllib as rllib
 import numpy as np
 import threading
 
+
 current_file_dir = os.path.dirname(os.path.abspath(__file__))
 bc_dir = os.path.join(current_file_dir, "bc_runs", "train")
 

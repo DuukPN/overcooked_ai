@@ -577,7 +577,7 @@ class OvercookedEnv(object):
         )
 
         # TODO: should probably transfer check methods over to Env class
-        from src.overcooked_ai_py.agents.benchmarking import AgentEvaluator
+        from overcooked_ai_py.agents.benchmarking import AgentEvaluator
 
         AgentEvaluator.check_trajectories(trajectories, verbose=info)
         return trajectories
