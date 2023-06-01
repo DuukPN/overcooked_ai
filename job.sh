@@ -11,6 +11,7 @@
 module load 2022r2
 module load miniconda3
 
-(cd overcooked_ai ; conda deactivate ; conda activate /home/dniemantsverdr/env)
+conda deactivate
+conda activate /home/dniemantsverdr/env
 
 srun python ~/overcooked_ai/src/human_aware_rl/imitation/my_experiments.py
