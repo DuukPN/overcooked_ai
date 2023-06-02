@@ -2,10 +2,10 @@
 #
 #SBATCH --job-name="bc_experiment"
 #SBATCH --partition=compute
-#SBATCH --time=02:30:00
+#SBATCH --time=01:30:00
 #SBATCH --ntasks=10
 #SBATCH --cpus-per-task=1
-#SBATCH --mem-per-cpu=18GB
+#SBATCH --mem-per-cpu=30GB
 #SBATCH --account=Education-EEMCS-Courses-CSE3000
 
 module load 2022r2
