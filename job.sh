@@ -14,8 +14,5 @@ module load miniconda3
 conda deactivate
 conda activate /home/dniemantsverdr/env
 
-for layout in "random3" "coordination_ring" "cramped_room" "random0" "asymmetric_advantages"
-do
-  srun python ~/overcooked_ai/src/human_aware_rl/imitation/my_experiments.py $layout
-  srun python ~/overcooked_ai/src/human_aware_rl/imitation/my_experiments.py $layout -s
-done
+srun python ~/overcooked_ai/src/human_aware_rl/imitation/my_experiments.py "$1"
+srun python ~/overcooked_ai/src/human_aware_rl/imitation/my_experiments.py "$1" -s
