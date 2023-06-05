@@ -68,7 +68,7 @@ def evaluate_bc_model(name, model_1_dir, model_2_dir, bc_params, verbose=True):
     avg_reward = np.mean(results["ep_returns"])
     sd_reward = np.std(results["ep_returns"])
 
-    f = open(os.path.join(bc_dir, "results", f"{name}.txt"))
+    f = open(os.path.join(bc_dir, "results", f"{name}.txt"), "w")
     f.write(str(results))
 
     print(f"Successfully completed {name} evaluation")
