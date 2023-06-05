@@ -5,7 +5,7 @@
 #SBATCH --time=01:30:00
 #SBATCH --ntasks=2
 #SBATCH --cpus-per-task=1
-#SBATCH --mem-per-cpu=30GB
+#SBATCH --mem-per-cpu=50GB
 #SBATCH --account=Education-EEMCS-Courses-CSE3000
 
 module load 2022r2
