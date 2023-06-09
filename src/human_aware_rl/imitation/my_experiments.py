@@ -1,6 +1,8 @@
 import os
 import sys
 
+from tabulate import tabulate
+
 from behavior_cloning_tf2 import (
     get_bc_params,
     train_bc_model,
@@ -10,6 +12,10 @@ from behavior_cloning_tf2 import (
 from human_aware_rl.static import (
     CLEAN_2019_HUMAN_DATA_TEST,
     CLEAN_2019_HUMAN_DATA_TRAIN,
+    HUMAN_DATA_DIR,
+)
+from human_aware_rl.human.process_dataframes import (
+    csv_to_df_pickle,
 )
 import human_aware_rl.rllib.rllib as rllib
 import numpy as np
@@ -82,7 +88,34 @@ def evaluate_bc_model(name, model_1_dir, model_2_dir, bc_params, verbose=True):
     return results
 
 
+def fuck_around_and_find_out():
+    df = csv_to_df_pickle(
+        os.path.join(HUMAN_DATA_DIR, "raw", "2019_hh_trials.csv"),
+        os.path.join(HUMAN_DATA_DIR, "cleaned"),
+        "2019_custom",
+        silent=False
+    )
+
+    print(tabulate(df, headers='keys', tablefmt='psql'))
+
+    if True:
+        sys.exit(0)
+
+
+def train_all_agents(bc_params, curr_dir_1, curr_dir_2, terminate=True):
+    if not os.path.isdir(curr_dir_1):
+        # threading.Thread(target=train_bc_model, args=(curr_dir_1, bc_params, True)).start()
+        train_bc_model(curr_dir_1, bc_params, verbose=True)
+    if not os.path.isdir(curr_dir_2):
+        # threading.Thread(target=train_bc_model, args=(curr_dir_2, bc_params, True)).start()
+        train_bc_model(curr_dir_2, bc_params, verbose=True)
+    if terminate:
+        sys.exit(0)
+
+
 if __name__ == "__main__":
+    # fuck_around_and_find_out()
+
     # random 3 is counter_circuit
     # random 0 is forced coordination
 
@@ -123,26 +156,28 @@ if __name__ == "__main__":
         os.path.join(bc_dir, f"{layout}_1"), \
         os.path.join(bc_dir, f"{layout}_2")
 
-    if not os.path.isdir(curr_dir_1):
-        # threading.Thread(target=train_bc_model, args=(curr_dir_1, bc_params, True)).start()
-        train_bc_model(curr_dir_1, bc_params, verbose=True)
-    if not os.path.isdir(curr_dir_2):
-        # threading.Thread(target=train_bc_model, args=(curr_dir_2, bc_params, True)).start()
-        train_bc_model(curr_dir_2, bc_params, verbose=True)
+    train_all_agents(bc_params, curr_dir_1, curr_dir_2, False)
 
     switched = False
     if len(sys.argv) > 2 and sys.argv[2] == "-s":
         switched = True
-
-    if not switched:
-        # threading.Thread(
-        #     target=evaluate_bc_model,
-        #     args=(f"{layout}_1", curr_dir_1, curr_dir_2, bc_params),
-        # ).start()
-        results = evaluate_bc_model(f"{layout}_1", curr_dir_1, curr_dir_2, bc_params)
+    if len(sys.argv) > 2 and sys.argv[-1] == "-i":
+        if not switched:
+            results = evaluate_bc_model(f"{layout}_1-1", curr_dir_1, curr_dir_1, bc_params)
+        else:
+            results = evaluate_bc_model(f"{layout}_2-2", curr_dir_2, curr_dir_2, bc_params)
     else:
-        # threading.Thread(
-        #   target=evaluate_bc_model,
-        #   args=(f"{layout}_2", curr_dir_2, curr_dir_1, bc_params),
-        # ).start()
-        results = evaluate_bc_model(f"{layout}_2", curr_dir_2, curr_dir_1, bc_params)
+        if not switched:
+            # threading.Thread(
+            #     target=evaluate_bc_model,
+            #     args=(f"{layout}_1", curr_dir_1, curr_dir_2, bc_params),
+            # ).start()
+            results = evaluate_bc_model(f"{layout}_1-2", curr_dir_1, curr_dir_2, bc_params)
+        else:
+            # threading.Thread(
+            #   target=evaluate_bc_model,
+            #   args=(f"{layout}_2", curr_dir_2, curr_dir_1, bc_params),
+            # ).start()
+            results = evaluate_bc_model(f"{layout}_2-1", curr_dir_2, curr_dir_1, bc_params)
+
+    print(results)

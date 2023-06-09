@@ -189,6 +189,8 @@ def convert_joint_df_trajs_to_overcooked_single(
                 one_traj_df, silent=silent, **kwargs
             )
 
+            print(joint_traj_data)
+
             human_idx = get_human_player_index_for_df(one_traj_df)
             human_indices.append(human_idx)
 
