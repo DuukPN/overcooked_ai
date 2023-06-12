@@ -14,5 +14,5 @@ module load miniconda3
 conda deactivate
 conda activate /home/dniemantsverdr/env
 
-#srun python ~/overcooked_ai/src/human_aware_rl/imitation/my_experiments.py "$1" -i
-srun python ~/overcooked_ai/src/human_aware_rl/imitation/my_experiments.py "$1" -s -i
+srun python ~/overcooked_ai/src/human_aware_rl/imitation/my_experiments.py "$1"
+#srun python ~/overcooked_ai/src/human_aware_rl/imitation/my_experiments.py "$1" -s -i

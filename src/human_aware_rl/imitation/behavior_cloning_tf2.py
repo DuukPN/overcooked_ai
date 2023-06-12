@@ -183,8 +183,11 @@ def build_bc_model(use_lstm=True, eager=False, **kwargs):
         return _build_model(**kwargs)
 
 
-def train_bc_model(model_dir, bc_params, verbose=False):
+def train_bc_model(model_dir, bc_params, split=0, verbose=False):
     inputs, seq_lens, targets = load_data(bc_params, verbose)
+    if split:
+        i = inputs.shape[0] // 2
+        inputs, targets = (inputs[:i], targets[:i]) if split == 1 else (inputs[i:], targets[i:])
 
     training_params = bc_params["training_params"]
 

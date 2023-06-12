@@ -60,7 +60,6 @@ def get_human_human_trajectories(
     for layout in layouts:
         curr_data_path = _get_data_path(layout, dataset_type, data_path)
         data_path_to_layouts[curr_data_path].append(layout)
-    print(data_path_to_layouts)
     # For each data path, load data once and parse trajectories for all corresponding layouts
     for data_path in data_path_to_layouts:
         curr_data = get_trajs_from_data(
