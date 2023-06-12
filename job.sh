@@ -1,11 +1,11 @@
 #!/bin/sh
 #
 #SBATCH --job-name="bc_experiment"
-#SBATCH --partition=compute
-#SBATCH --time=01:00:00
-#SBATCH --ntasks=2
+#SBATCH --partition=memory
+#SBATCH --time=06:00:00
+#SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem-per-cpu=48GB
+#SBATCH --mem-per-cpu=64GB
 #SBATCH --account=Education-EEMCS-Courses-CSE3000
 
 module load 2022r2
