@@ -106,12 +106,8 @@ def fuck_around_and_find_out():
 
 
 def train_all_agents(bc_params, layout, terminate=True):
-    if not os.path.isdir(curr_dir_1):
-        # threading.Thread(target=train_bc_model, args=(curr_dir_1, bc_params, True)).start()
-        train_bc_model(curr_dir_1, bc_params, verbose=True)
-    if not os.path.isdir(curr_dir_2):
-        # threading.Thread(target=train_bc_model, args=(curr_dir_2, bc_params, True)).start()
-        train_bc_model(curr_dir_2, bc_params, verbose=True)
+    train_bc_agents(bc_params, layout)
+    train_hproxy_agents(bc_params, layout)
     if terminate:
         sys.exit(0)
 
@@ -123,7 +119,7 @@ def train_bc_agents(bc_params, layout):
             train_bc_model(target_dir, bc_params, split=1, verbose=True)
 
 
-def train_hproxy_agents(bc_params):
+def train_hproxy_agents(bc_params, layout):
     for i in range(5):
         target_dir = os.path.join(bc_dir_hproxy, f"{layout}_{i}")
         if not os.path.isdir(target_dir):
