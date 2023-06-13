@@ -11,7 +11,7 @@ from overcooked_ai_py.agents.benchmarking import AgentEvaluator
 warnings.simplefilter("ignore")
 
 # environment variable that tells us whether this code is running on the server or not
-LOCAL_TESTING = os.getenv("RUN_ENV", "production") == "local"
+LOCAL_TESTING = False # os.getenv("RUN_ENV", "production") == "local"
 
 # Sacred setup (must be before rllib imports)
 from sacred import Experiment
