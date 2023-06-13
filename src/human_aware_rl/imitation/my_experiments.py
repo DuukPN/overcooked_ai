@@ -144,55 +144,57 @@ if __name__ == "__main__":
         "asymmetric_advantages": 120,
     }
 
-    for layout in [
-        "random3",  # counter circuit
-        "coordination_ring",
-        "cramped_room",
-        "random0",  # forced coordination
-        "asymmetric_advantages",
-    ]:
+    # for layout in [
+    #     "random3",  # counter circuit
+    #     "coordination_ring",
+    #     "cramped_room",
+    #     "random0",  # forced coordination
+    #     "asymmetric_advantages",
+    # ]:
 
-        # layout = sys.argv[1] if len(sys.argv) > 1 else "cramped_room"
+    layout = sys.argv[1] if len(sys.argv) > 1 else "cramped_room"
 
-        params_to_override = {
-            # The maps to train on
-            "layouts": [layout],
-            # The map to evaluate on
-            "layout_name": layout,
-            "data_path": CLEAN_2019_HUMAN_DATA_ALL,
-            "epochs": epoch_dict[layout],
-            "old_dynamics": True,
-            "num_games": 100,
-        }
-        bc_params = get_bc_params(**params_to_override)
-        curr_dir_1, curr_dir_2 = \
-            os.path.join(bc_dir, f"{layout}_1"), \
-            os.path.join(bc_dir, f"{layout}_2")
+    params_to_override = {
+        # The maps to train on
+        "layouts": [layout],
+        # The map to evaluate on
+        "layout_name": layout,
+        "data_path": CLEAN_2019_HUMAN_DATA_ALL,
+        "epochs": epoch_dict[layout],
+        "old_dynamics": True,
+        "num_games": 100,
+    }
+    bc_params = get_bc_params(**params_to_override)
 
-        train_all_agents(bc_params, layout, False)
+    name = f"{layout}_{sys.argv[2]}"
+
+    if len(sys.argv) > 3 and sys.argv[3] == "-h":
+        curr_dir = os.path.join(bc_dir_hproxy, name)
     else:
-        sys.exit(0)
+        curr_dir = os.path.join(bc_dir_bc, name)
 
-    switched = False
-    if len(sys.argv) > 2 and sys.argv[2] == "-s":
-        switched = True
-    if len(sys.argv) > 2 and sys.argv[-1] == "-i":
-        if not switched:
-            results = evaluate_bc_model(f"{layout}_1-1", curr_dir_1, curr_dir_1, bc_params)
-        else:
-            results = evaluate_bc_model(f"{layout}_2-2", curr_dir_2, curr_dir_2, bc_params)
-    else:
-        if not switched:
-            # threading.Thread(
-            #     target=evaluate_bc_model,
-            #     args=(f"{layout}_1", curr_dir_1, curr_dir_2, bc_params),
-            # ).start()
-            results = evaluate_bc_model(f"{layout}_1-2", curr_dir_1, curr_dir_2, bc_params)
-        else:
-            # threading.Thread(
-            #   target=evaluate_bc_model,
-            #   args=(f"{layout}_2", curr_dir_2, curr_dir_1, bc_params),
-            # ).start()
-            results = evaluate_bc_model(f"{layout}_2-1", curr_dir_2, curr_dir_1, bc_params)
+    results = evaluate_bc_model(name, curr_dir, curr_dir, bc_params)
+
+    # switched = False
+    # if len(sys.argv) > 2 and sys.argv[2] == "-s":
+    #     switched = True
+    # if len(sys.argv) > 2 and sys.argv[-1] == "-i":
+    #     if not switched:
+    #         results = evaluate_bc_model(f"{layout}_1-1", curr_dir_1, curr_dir_1, bc_params)
+    #     else:
+    #         results = evaluate_bc_model(f"{layout}_2-2", curr_dir_2, curr_dir_2, bc_params)
+    # else:
+    #     if not switched:
+    #         # threading.Thread(
+    #         #     target=evaluate_bc_model,
+    #         #     args=(f"{layout}_1", curr_dir_1, curr_dir_2, bc_params),
+    #         # ).start()
+    #         results = evaluate_bc_model(f"{layout}_1-2", curr_dir_1, curr_dir_2, bc_params)
+    #     else:
+    #         # threading.Thread(
+    #         #   target=evaluate_bc_model,
+    #         #   args=(f"{layout}_2", curr_dir_2, curr_dir_1, bc_params),
+    #         # ).start()
+    #         results = evaluate_bc_model(f"{layout}_2-1", curr_dir_2, curr_dir_1, bc_params)
 
     print(results)
