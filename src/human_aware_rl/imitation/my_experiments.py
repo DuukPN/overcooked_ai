@@ -167,11 +167,11 @@ if __name__ == "__main__":
     bc_params = get_bc_params(**params_to_override)
 
     if len(sys.argv) > 3 and sys.argv[3] == "-h":
-        name = f"bc_{layout}_{sys.argv[2]}"
-        curr_dir = os.path.join(bc_dir_hproxy, name)
+        name = os.path.join("hproxy", f"{layout}_{sys.argv[2]}")
+        curr_dir = os.path.join(bc_dir, name)
     else:
-        name = f"hproxy_{layout}_{sys.argv[2]}"
-        curr_dir = os.path.join(bc_dir_bc, name)
+        name = os.path.join("bc", f"{layout}_{sys.argv[2]}")
+        curr_dir = os.path.join(bc_dir, name)
 
     if not os.path.isfile(os.path.join(bc_dir, "results", f"{name}.txt")):
         results = evaluate_bc_model(name, curr_dir, curr_dir, bc_params)
