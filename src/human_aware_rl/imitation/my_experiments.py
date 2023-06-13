@@ -173,7 +173,7 @@ if __name__ == "__main__":
         name = f"hproxy_{layout}_{sys.argv[2]}"
         curr_dir = os.path.join(bc_dir_bc, name)
 
-    if os.path.isfile(os.path.join(bc_dir, "results", f"{name}.txt")):
+    if not os.path.isfile(os.path.join(bc_dir, "results", f"{name}.txt")):
         results = evaluate_bc_model(name, curr_dir, curr_dir, bc_params)
         print(results)
 
