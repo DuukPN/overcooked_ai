@@ -349,11 +349,11 @@ def my_config():
 
 def run(params):
     run_name = params["experiment_name"]
-    if params["verbose"]:
-        import wandb
-
-        wandb.init(project=WANDB_PROJECT, sync_tensorboard=True)
-        wandb.run.name = run_name
+    # if params["verbose"]:
+    #     import wandb
+    #
+    #     wandb.init(project=WANDB_PROJECT, sync_tensorboard=True)
+    #     wandb.run.name = run_name
     # Retrieve the tune.Trainable object that is used for the experiment
     trainer = gen_trainer_from_params(params)
     # Object to store training results in
@@ -373,10 +373,10 @@ def run(params):
     # Save the state of the experiment at end
     save_path = save_trainer(trainer, params)
 
-    if params["verbose"]:
-        print("saved trainer at", save_path)
-        # quiet = True so wandb doesn't log to console
-        wandb.finish(quiet=True)
+    # if params["verbose"]:
+    #     print("saved trainer at", save_path)
+    #     # quiet = True so wandb doesn't log to console
+    #     wandb.finish(quiet=True)
 
     return result
 
