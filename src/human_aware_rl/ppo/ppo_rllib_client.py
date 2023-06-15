@@ -372,9 +372,9 @@ def run(params):
 
     # Save the state of the experiment at end
     save_path = save_trainer(trainer, params)
+    print("saved trainer at", save_path)
 
     # if params["verbose"]:
-    #     print("saved trainer at", save_path)
     #     # quiet = True so wandb doesn't log to console
     #     wandb.finish(quiet=True)
 
