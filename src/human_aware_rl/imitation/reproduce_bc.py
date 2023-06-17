@@ -12,13 +12,13 @@ from human_aware_rl.static import (
 if __name__ == "__main__":
     # random 3 is counter_circuit
     # random 0 is forced coordination
-    # the reason why we use these as the layouts name here is that in the cleaned pickled file of human trajectories, the df has layout named random3 and random0
+    # the reason why we use these as the layouts name here is that in the cleaned pickled file of human trajectories, the df has layout named random3_4 and random0
     # So in order to extract the right data from the df, we need to use these names
     # however when loading layouts there are no random0/3
     # The same parameter is used in both setting up the layout for training and loading the corresponding trajectories
     # so without modifying the dataframes, I have to create new layouts
     for layout in [
-        "random3",
+        "random3_4",
         "coordination_ring",
         "cramped_room",
         "random0",

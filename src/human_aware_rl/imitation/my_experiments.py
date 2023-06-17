@@ -9,6 +9,7 @@ from behavior_cloning_tf2 import (
     BehaviorCloningPolicy,
     _get_base_ae,
 )
+from human_aware_rl.rllib.utils import get_base_ae
 from human_aware_rl.static import (
     CLEAN_2019_HUMAN_DATA_TEST,
     CLEAN_2019_HUMAN_DATA_TRAIN,
@@ -21,12 +22,32 @@ from human_aware_rl.human.process_dataframes import (
 import human_aware_rl.rllib.rllib as rllib
 import numpy as np
 import threading
+from overcooked_ai_py.agents.agent import (
+    Agent,
+    AgentPair,
+    RandomAgent,
+)
+from human_aware_rl.imitation.scripted_agent import DummyAI
+from human_aware_rl.imitation.visualization import visualize
 
 
 current_file_dir = os.path.dirname(os.path.abspath(__file__))
 bc_dir = os.path.join(current_file_dir, "bc_runs")
 bc_dir_bc = os.path.join(bc_dir, "bc")
 bc_dir_hproxy = os.path.join(bc_dir, "hproxy")
+
+
+class BehaviorCloningAgent(Agent):
+    def __init__(self, policy):
+        super().__init__()
+        self.policy = policy
+
+    def action(self, state):
+        actions, states, info = self.policy.compute_actions([state])
+        return actions[0], {"action_logits": info["action_dist_inputs"][0]}
+
+    def actions(self, states, agent_indices):
+        return [self.action(state) for state in states]
 
 
 def evaluate_bc_model(name, model_1_dir, model_2_dir, bc_params, verbose=True):
@@ -132,10 +153,7 @@ if __name__ == "__main__":
     # random 3 is counter_circuit
     # random 0 is forced coordination
 
-    my_agent_dir = os.path.join(bc_dir, "my_agent")
-    # if os.path.isdir(bc_dir):
-    #     # if this bc agent has been created, we continue to the next layout
-    #     continue
+    # Epoch numbers for each map, in agreement with the original study.
     epoch_dict = {
         "random3": 110,  # counter circuit
         "coordination_ring": 120,
@@ -166,35 +184,88 @@ if __name__ == "__main__":
     }
     bc_params = get_bc_params(**params_to_override)
 
-    if len(sys.argv) > 3 and sys.argv[3] == "-h":
-        name = os.path.join("hproxy", f"{layout}_{sys.argv[2]}")
-        curr_dir = os.path.join(bc_dir, name)
-    else:
-        name = os.path.join("bc", f"{layout}_{sys.argv[2]}")
-        curr_dir = os.path.join(bc_dir, name)
+    # Create agents
+    evaluator = get_base_ae(
+        bc_params["mdp_params"],
+        {"horizon": bc_params["eval_params"]["ep_length"], "num_mdp": 1},
+    )
 
-    if not os.path.isfile(os.path.join(bc_dir, "results", f"{name}.txt")):
-        results = evaluate_bc_model(name, curr_dir, curr_dir, bc_params)
-        print(results)
+    standard_featurize_fn = evaluator.env.featurize_state_mdp
 
-    # switched = False
-    # if len(sys.argv) > 2 and sys.argv[2] == "-s":
-    #     switched = True
-    # if len(sys.argv) > 2 and sys.argv[-1] == "-i":
-    #     if not switched:
-    #         results = evaluate_bc_model(f"{layout}_1-1", curr_dir_1, curr_dir_1, bc_params)
-    #     else:
-    #         results = evaluate_bc_model(f"{layout}_2-2", curr_dir_2, curr_dir_2, bc_params)
-    # else:
-    #     if not switched:
-    #         # threading.Thread(
-    #         #     target=evaluate_bc_model,
-    #         #     args=(f"{layout}_1", curr_dir_1, curr_dir_2, bc_params),
-    #         # ).start()
-    #         results = evaluate_bc_model(f"{layout}_1-2", curr_dir_1, curr_dir_2, bc_params)
-    #     else:
-    #         # threading.Thread(
-    #         #   target=evaluate_bc_model,
-    #         #   args=(f"{layout}_2", curr_dir_2, curr_dir_1, bc_params),
-    #         # ).start()
-    #         results = evaluate_bc_model(f"{layout}_2-1", curr_dir_2, curr_dir_1, bc_params)
+    hproxy_policy = BehaviorCloningPolicy.from_model_dir(os.path.join(bc_dir, "hproxy", layout))
+    hproxy_agent_0 = rllib.RlLibAgent(hproxy_policy, 0, standard_featurize_fn)
+    hproxy_agent_1 = rllib.RlLibAgent(hproxy_policy, 1, standard_featurize_fn)
+
+    scripted_agent_0 = DummyAI(0)
+    scripted_agent_1 = DummyAI(1)
+
+    # TODO: PPO agents
+    ppo_agent_0 = None
+    ppo_agent_1 = None
+
+    featurize_fns = [standard_featurize_fn]
+    bc_idx = sys.argv[2] if len(sys.argv) > 2 else 0
+
+    bc_policy = BehaviorCloningPolicy.from_model_dir(os.path.join(bc_dir, f"bc{bc_idx if bc_idx else ''}", layout))
+    bc_agent_0 = rllib.RlLibAgent(bc_policy, 0, featurize_fns[bc_idx])
+    bc_agent_1 = rllib.RlLibAgent(bc_policy, 1, featurize_fns[bc_idx])
+
+    print(f"Successfully created all agents\nRunning experiment {bc_idx}")
+
+    result_dir = os.path.join(bc_dir, "results", f"experiment{bc_idx}")
+    if not os.path.isdir(result_dir):
+        os.mkdir(result_dir)
+
+    tests = ["BC"]
+    eval_params = bc_params["eval_params"]
+    with open(os.path.join(result_dir, f"{layout}_raw.txt"), "w") as raw_file:
+        # H_proxy tests
+        name = f"{tests[bc_idx]}+H_proxy_0"
+        ap = AgentPair(bc_agent_0, hproxy_agent_1)
+        results = evaluator.evaluate_agent_pair(
+            ap,
+            num_games=eval_params["num_games"]
+        )
+        raw_file.write(f"{name}\n{results['ep_returns']}\n\n")
+
+        name = f"{tests[bc_idx]}+H_proxy_1"
+        ap = AgentPair(hproxy_agent_0, bc_agent_1)
+        results = evaluator.evaluate_agent_pair(
+            ap,
+            num_games=eval_params["num_games"]
+        )
+        raw_file.write(f"{name}\n{results['ep_returns']}\n\n")
+
+        # PPO tests
+        name = f"{tests[bc_idx]}+PPO_0"
+        ap = AgentPair(bc_agent_0, ppo_agent_1)
+        results = evaluator.evaluate_agent_pair(
+            ap,
+            num_games=eval_params["num_games"]
+        )
+        raw_file.write(f"{name}\n{results['ep_returns']}\n\n")
+
+        name = f"{tests[bc_idx]}+PPO_1"
+        ap = AgentPair(ppo_agent_0, bc_agent_1)
+        results = evaluator.evaluate_agent_pair(
+            ap,
+            num_games=eval_params["num_games"]
+        )
+        raw_file.write(f"{name}\n{results['ep_returns']}\n\n")
+
+        # Scripted tests
+        name = f"{tests[bc_idx]}+Scripted_0"
+        ap = AgentPair(bc_agent_0, scripted_agent_1)
+        results = evaluator.evaluate_agent_pair(
+            ap,
+            num_games=eval_params["num_games"]
+        )
+        raw_file.write(f"{name}\n{results['ep_returns']}\n\n")
+
+        name = f"{tests[bc_idx]}+Scripted_1"
+        ap = AgentPair(scripted_agent_0, bc_agent_1)
+        results = evaluator.evaluate_agent_pair(
+            ap,
+            num_games=eval_params["num_games"]
+        )
+        raw_file.write(f"{name}\n{results['ep_returns']}\n\n")
