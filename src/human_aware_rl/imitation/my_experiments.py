@@ -35,6 +35,7 @@ current_file_dir = os.path.dirname(os.path.abspath(__file__))
 bc_dir = os.path.join(current_file_dir, "bc_runs")
 bc_dir_bc = os.path.join(bc_dir, "bc")
 bc_dir_hproxy = os.path.join(bc_dir, "hproxy")
+ppo_dir = os.path.join(current_file_dir, "..", "ppo")
 
 
 class BehaviorCloningAgent(Agent):
@@ -162,6 +163,17 @@ if __name__ == "__main__":
         "asymmetric_advantages": 120,
     }
 
+    # Path to each PPO agent
+    ppo_dict = {
+        "random3": os.path.join(ppo_dir, "reproduced_results", "ppo_sp_random3"),  # counter circuit
+        "coordination_ring": os.path.join(ppo_dir, "reproduced_results", "ppo_sp_coordination_ring",
+                                          "PPO_coordination_ring_False_nw=2_vf=0.009330_es=0.200000_en=0.100000_kl=0.156000_0_2023-06-17_14-02-517740nynm",
+                                          "checkpoint_000650"),
+        "cramped_room": os.path.join(ppo_dir, "reproduced_results", "ppo_sp_cramped_room"),
+        "random0": os.path.join(ppo_dir, "reproduced_results", "ppo_sp_random0"),  # forced coordination
+        "asymmetric_advantages": os.path.join(ppo_dir, "reproduced_results", "ppo_sp_asymmetric_advantages"),
+    }
+
     # for layout in [
     #     "random3",  # counter circuit
     #     "coordination_ring",
@@ -170,7 +182,7 @@ if __name__ == "__main__":
     #     "asymmetric_advantages",
     # ]:
 
-    layout = sys.argv[1] if len(sys.argv) > 1 else "cramped_room"
+    layout = sys.argv[1] if len(sys.argv) > 1 else "coordination_ring"
 
     params_to_override = {
         # The maps to train on
@@ -187,7 +199,7 @@ if __name__ == "__main__":
     # Create agents
     evaluator = get_base_ae(
         bc_params["mdp_params"],
-        {"horizon": bc_params["eval_params"]["ep_length"], "num_mdp": 1},
+        {"horizon": bc_params["evaluation_params"]["ep_length"], "num_mdp": 1},
     )
 
     standard_featurize_fn = evaluator.env.featurize_state_mdp
@@ -199,9 +211,8 @@ if __name__ == "__main__":
     scripted_agent_0 = DummyAI(0)
     scripted_agent_1 = DummyAI(1)
 
-    # TODO: PPO agents
-    ppo_agent_0 = None
-    ppo_agent_1 = None
+    ppo_agent_0 = rllib.load_agent(ppo_dict[layout], agent_index=0)
+    ppo_agent_1 = rllib.load_agent(ppo_dict[layout], agent_index=1)
 
     featurize_fns = [standard_featurize_fn]
     bc_idx = sys.argv[2] if len(sys.argv) > 2 else 0

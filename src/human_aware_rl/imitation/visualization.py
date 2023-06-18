@@ -10,13 +10,19 @@ from human_aware_rl.utils import set_style
 
 current_file_dir = os.path.dirname(os.path.abspath(__file__))
 bc_dir = os.path.join(current_file_dir, "bc_runs")
-
+ordered_layouts = [
+    "cramped_room",
+    "coordination_ring",
+    "asymmetric_advantages",
+    "random0",  # forced coordination
+    "random3",  # counter circuit
+]
 
 def visualize(res_dir):
     algos_to_name = {
         "BC+H_proxy_0": "BC+H$_{Proxy}$",
         "BC+H_proxy_1": None,
-        "BC+PPO_0": "BC+PPO",
+        "BC+PPO_0": "BC+SP",
         "BC+PPO_1": None,
         "BC+Scripted_0": "BC+Script",
         "BC+Scripted_1": None,
@@ -35,13 +41,7 @@ def visualize(res_dir):
     }
 
     final_data = defaultdict(lambda: defaultdict(int))
-    for layout in [
-        "cramped_room",
-        "coordination_ring",
-        "asymmetric_advantages",
-        "random0",  # forced coordination
-        "random3",  # counter circuit
-    ]:
+    for layout in ordered_layouts:
         with open(os.path.join(res_dir, f"{layout}_raw.txt"), "r") as f:
             # TODO: parse shit
             pass
@@ -178,7 +178,8 @@ def graph_title(hist_type):
 def means_and_stds_by_algo(full_data):
     mean_by_algo = defaultdict(list)
     std_by_algo = defaultdict(list)
-    for layout, layout_algo_dict in full_data.items():
+    for layout in ordered_layouts:
+        layout_algo_dict = full_data[layout]
         for k in layout_algo_dict.keys():
             if type(layout_algo_dict[k]) is list or type(layout_algo_dict[k]) is tuple:
                 mean, std = layout_algo_dict[k]
