@@ -141,17 +141,17 @@ def train_all_agents(bc_params, layout, terminate=True):
 
 
 def train_bc_agents(bc_params, layout):
-    for i in range(5):
-        target_dir = os.path.join(bc_dir_bc, f"{layout}_{i}")
-        if not os.path.isdir(target_dir):
-            train_bc_model(target_dir, bc_params, split=1, verbose=True)
+    # for i in range(5):
+    target_dir = os.path.join(bc_dir_bc, f"{layout}")
+    if not os.path.isdir(target_dir):
+        train_bc_model(target_dir, bc_params, split=1, verbose=True)
 
 
 def train_hproxy_agents(bc_params, layout):
-    for i in range(5):
-        target_dir = os.path.join(bc_dir_hproxy, f"{layout}_{i}")
-        if not os.path.isdir(target_dir):
-            train_bc_model(target_dir, bc_params, split=2, verbose=True)
+    # for i in range(5):
+    target_dir = os.path.join(bc_dir_hproxy, f"{layout}")
+    if not os.path.isdir(target_dir):
+        train_bc_model(target_dir, bc_params, split=2, verbose=True)
 
 
 if __name__ == "__main__":
@@ -188,27 +188,31 @@ if __name__ == "__main__":
                                               "checkpoint_000650"),
     }
 
-    # for layout in [
-    #     "random3",  # counter circuit
-    #     "coordination_ring",
-    #     "cramped_room",
-    #     "random0",  # forced coordination
-    #     "asymmetric_advantages",
-    # ]:
+    for layout in [
+        "random3",  # counter circuit
+        "coordination_ring",
+        "cramped_room",
+        "random0",  # forced coordination
+        "asymmetric_advantages",
+    ]:
 
-    layout = sys.argv[1] if len(sys.argv) > 1 else "coordination_ring"
+        # layout = sys.argv[1] if len(sys.argv) > 1 else "coordination_ring"
 
-    params_to_override = {
-        # The maps to train on
-        "layouts": [layout],
-        # The map to evaluate on
-        "layout_name": layout,
-        "data_path": CLEAN_2019_HUMAN_DATA_ALL,
-        "epochs": epoch_dict[layout],
-        "old_dynamics": True,
-        "num_games": 100,
-    }
-    bc_params = get_bc_params(**params_to_override)
+        params_to_override = {
+            # The maps to train on
+            "layouts": [layout],
+            # The map to evaluate on
+            "layout_name": layout,
+            "data_path": CLEAN_2019_HUMAN_DATA_ALL,
+            "epochs": epoch_dict[layout],
+            "old_dynamics": True,
+            "num_games": 100,
+        }
+        bc_params = get_bc_params(**params_to_override)
+
+        train_all_agents(bc_params, layout, False)
+    else:
+        sys.exit(0)
 
     # Create agents
     evaluator = get_base_ae(
