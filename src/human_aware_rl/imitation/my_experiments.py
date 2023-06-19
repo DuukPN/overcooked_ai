@@ -1,8 +1,6 @@
 import os
 import sys
 
-from tabulate import tabulate
-
 from behavior_cloning_tf2 import (
     get_bc_params,
     train_bc_model,
@@ -16,19 +14,14 @@ from human_aware_rl.static import (
     CLEAN_2019_HUMAN_DATA_ALL,
     HUMAN_DATA_DIR,
 )
-from human_aware_rl.human.process_dataframes import (
-    csv_to_df_pickle,
-)
 import human_aware_rl.rllib.rllib as rllib
 import numpy as np
-import threading
 from overcooked_ai_py.agents.agent import (
     Agent,
     AgentPair,
     RandomAgent,
 )
 from human_aware_rl.imitation.scripted_agent import DummyAI
-from human_aware_rl.imitation.visualization import visualize
 
 current_file_dir = os.path.dirname(os.path.abspath(__file__))
 bc_dir = os.path.join(current_file_dir, "bc_runs")
@@ -188,31 +181,29 @@ if __name__ == "__main__":
                                               "checkpoint_000650"),
     }
 
-    for layout in [
-        "random3",  # counter circuit
-        "coordination_ring",
-        "cramped_room",
-        "random0",  # forced coordination
-        "asymmetric_advantages",
-    ]:
+    # for layout in [
+    #     "random3",  # counter circuit
+    #     "coordination_ring",
+    #     "cramped_room",
+    #     "random0",  # forced coordination
+    #     "asymmetric_advantages",
+    # ]:
 
-        # layout = sys.argv[1] if len(sys.argv) > 1 else "coordination_ring"
+    layout = sys.argv[1] if len(sys.argv) > 1 else "coordination_ring"
 
-        params_to_override = {
-            # The maps to train on
-            "layouts": [layout],
-            # The map to evaluate on
-            "layout_name": layout,
-            "data_path": CLEAN_2019_HUMAN_DATA_ALL,
-            "epochs": epoch_dict[layout],
-            "old_dynamics": True,
-            "num_games": 100,
-        }
-        bc_params = get_bc_params(**params_to_override)
+    params_to_override = {
+        # The maps to train on
+        "layouts": [layout],
+        # The map to evaluate on
+        "layout_name": layout,
+        "data_path": CLEAN_2019_HUMAN_DATA_ALL,
+        "epochs": epoch_dict[layout],
+        "old_dynamics": True,
+        "num_games": 100,
+    }
+    bc_params = get_bc_params(**params_to_override)
 
-        train_all_agents(bc_params, layout, False)
-    else:
-        sys.exit(0)
+    # train_all_agents(bc_params, layout, False)
 
     # Create agents
     evaluator = get_base_ae(
@@ -233,7 +224,7 @@ if __name__ == "__main__":
     ppo_agent_1 = rllib.load_agent(ppo_dict[layout], agent_index=1)
 
     featurize_fns = [standard_featurize_fn]
-    bc_idx = sys.argv[2] if len(sys.argv) > 2 else 0
+    bc_idx = int(sys.argv[2]) if len(sys.argv) > 2 else 0
 
     bc_policy = BehaviorCloningPolicy.from_model_dir(os.path.join(bc_dir, f"bc{bc_idx if bc_idx else ''}", layout))
     bc_agent_0 = rllib.RlLibAgent(bc_policy, 0, featurize_fns[bc_idx])
@@ -246,7 +237,7 @@ if __name__ == "__main__":
         os.mkdir(result_dir)
 
     tests = ["BC"]
-    eval_params = bc_params["eval_params"]
+    eval_params = bc_params["evaluation_params"]
     with open(os.path.join(result_dir, f"{layout}_raw.txt"), "w") as raw_file:
         # H_proxy tests
         name = f"{tests[bc_idx]}+H_proxy_0"
