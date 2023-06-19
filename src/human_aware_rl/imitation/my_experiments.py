@@ -30,7 +30,6 @@ from overcooked_ai_py.agents.agent import (
 from human_aware_rl.imitation.scripted_agent import DummyAI
 from human_aware_rl.imitation.visualization import visualize
 
-
 current_file_dir = os.path.dirname(os.path.abspath(__file__))
 bc_dir = os.path.join(current_file_dir, "bc_runs")
 bc_dir_bc = os.path.join(bc_dir, "bc")
@@ -114,14 +113,21 @@ def evaluate_bc_model(name, model_1_dir, model_2_dir, bc_params, verbose=True):
 
 
 def fuck_around_and_find_out():
-    df = csv_to_df_pickle(
-        os.path.join(HUMAN_DATA_DIR, "raw", "2019_hh_trials.csv"),
-        os.path.join(HUMAN_DATA_DIR, "cleaned"),
-        "2019_custom",
-        silent=False
-    )
+    # layout = "cramped_room"
+    # params_to_override = {
+    #     # The maps to train on
+    #     "layouts": [layout],
+    #     # The map to evaluate on
+    #     "layout_name": layout,
+    #     "data_path": CLEAN_2019_HUMAN_DATA_ALL,
+    #     "epochs": 20,
+    #     "old_dynamics": True,
+    #     "num_games": 100,
+    # }
+    # bc_params = get_bc_params(**params_to_override)
+    # train_bc_model(os.path.join(bc_dir, "train", "my_agent"), bc_params, split=1, verbose=True)
 
-    print(tabulate(df, headers='keys', tablefmt='psql'))
+    model = BehaviorCloningPolicy.from_model_dir(os.path.join(bc_dir, "train", "my_agent"))
 
     if True:
         sys.exit(0)
@@ -165,13 +171,21 @@ if __name__ == "__main__":
 
     # Path to each PPO agent
     ppo_dict = {
-        "random3": os.path.join(ppo_dir, "reproduced_results", "ppo_sp_random3"),  # counter circuit
+        "random3": os.path.join(ppo_dir, "reproduced_results", "ppo_sp_counter_circuit",
+                                "PPO_counter_circuit_o_1order_False_nw=6_vf=0.009920_es=0.200000_en=0.100000_kl=0.299000_0_2023-06-19_12-38-34wevafk1c",
+                                "checkpoint_000650"),  # counter circuit
         "coordination_ring": os.path.join(ppo_dir, "reproduced_results", "ppo_sp_coordination_ring",
                                           "PPO_coordination_ring_False_nw=2_vf=0.009330_es=0.200000_en=0.100000_kl=0.156000_0_2023-06-17_14-02-517740nynm",
                                           "checkpoint_000650"),
-        "cramped_room": os.path.join(ppo_dir, "reproduced_results", "ppo_sp_cramped_room"),
-        "random0": os.path.join(ppo_dir, "reproduced_results", "ppo_sp_random0"),  # forced coordination
-        "asymmetric_advantages": os.path.join(ppo_dir, "reproduced_results", "ppo_sp_asymmetric_advantages"),
+        "cramped_room": os.path.join(ppo_dir, "reproduced_results", "ppo_sp_cramped_room",
+                                     "PPO_cramped_room_False_nw=4_vf=0.009950_es=0.200000_en=0.100000_kl=0.197000_0_2023-06-19_09-49-46x2if1j8l",
+                                     "checkpoint_000550"),
+        "random0": os.path.join(ppo_dir, "reproduced_results", "ppo_sp_forced_coordination",
+                                "PPO_forced_coordination_False_nw=2_vf=0.016000_es=0.200000_en=0.100000_kl=0.310000_0_2023-06-18_17-50-28lxpx5dla",
+                                "checkpoint_000650"),  # forced coordination
+        "asymmetric_advantages": os.path.join(ppo_dir, "reproduced_results", "ppo_sp_asymmetric_advantages",
+                                              "PPO_asymmetric_advantages_False_nw=2_vf=0.022000_es=0.200000_en=0.100000_kl=0.185000_0_2023-06-18_10-32-02hqt2uzy7",
+                                              "checkpoint_000650"),
     }
 
     # for layout in [
