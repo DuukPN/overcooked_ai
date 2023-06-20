@@ -246,7 +246,7 @@ if __name__ == "__main__":
         ppo_agent_0 = rllib.load_agent(ppo_dict[layout], agent_index=0)
         ppo_agent_1 = rllib.load_agent(ppo_dict[layout], agent_index=1)
 
-    bc_policy = BehaviorCloningPolicy.from_model_dir(os.path.join(bc_dir, f"bc{bc_idx if bc_idx else ''}", layout))
+    bc_policy = BehaviorCloningPolicy.from_model_dir(os.path.join(bc_dir, f"bc_{bc_idx}" if bc_idx else 'bc', layout))
     bc_agent_0 = rllib.RlLibAgent(bc_policy, 0, current_featurize_fn)
     bc_agent_1 = rllib.RlLibAgent(bc_policy, 1, current_featurize_fn)
 
