@@ -986,7 +986,8 @@ class DummyAI(Agent):
         # obj = state.objects["onion"]
         # print(obj)
 
-    def action(self, state):
+    def action(self, states, actions):
+        state = states[-1]
         self.initialization()
         self.takeVariablesFromState(state)
 
