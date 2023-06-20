@@ -4,8 +4,8 @@
 #SBATCH --partition=compute
 #SBATCH --time=08:00:00
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=1
-#SBATCH --mem-per-cpu=40GB
+#SBATCH --cpus-per-task=5
+#SBATCH --mem-per-cpu=8GB
 #SBATCH --account=Education-EEMCS-Courses-CSE3000
 
 module load 2022r2
