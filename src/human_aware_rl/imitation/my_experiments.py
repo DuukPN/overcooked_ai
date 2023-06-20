@@ -868,7 +868,7 @@ if __name__ == "__main__":
 
     standard_featurize_fn = evaluator.env.featurize_state_mdp
 
-    if part == "ppo":
+    if part == "hproxy":
         hproxy_policy = BehaviorCloningPolicy.from_model_dir(os.path.join(bc_dir, "hproxy", layout))
         hproxy_agent_0 = rllib.RlLibAgent(hproxy_policy, 0, standard_featurize_fn)
         hproxy_agent_1 = rllib.RlLibAgent(hproxy_policy, 1, standard_featurize_fn)
