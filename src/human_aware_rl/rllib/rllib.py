@@ -859,10 +859,11 @@ def load_trainer(save_path, true_num_workers=False):
     return trainer
 
 
-def get_agent_from_trainer(trainer, policy_id="ppo", agent_index=0):
+def get_agent_from_trainer(trainer, policy_id="ppo", agent_index=0, featurize_fn=None):
     policy = trainer.get_policy(policy_id)
     dummy_env = trainer.env_creator(trainer.config["env_config"])
-    featurize_fn = dummy_env.featurize_fn_map[policy_id]
+    if not featurize_fn:
+        featurize_fn = dummy_env.featurize_fn_map[policy_id]
     agent = RlLibAgent(policy, agent_index, featurize_fn=featurize_fn)
     return agent
 
@@ -882,7 +883,7 @@ def load_agent_pair(save_path, policy_id_0="ppo", policy_id_1="ppo"):
     return get_agent_pair_from_trainer(trainer, policy_id_0, policy_id_1)
 
 
-def load_agent(save_path, policy_id="ppo", agent_index=0):
+def load_agent(save_path, policy_id="ppo", featurize_fn=None, agent_index=0):
     """
     Returns an RllibAgent (compatible with the Overcooked Agent API) from the `save_path` to a previously
     serialized trainer object created with `save_trainer`
@@ -895,5 +896,5 @@ def load_agent(save_path, policy_id="ppo", agent_index=0):
     """
     trainer = load_trainer(save_path)
     return get_agent_from_trainer(
-        trainer, policy_id=policy_id, agent_index=agent_index
+        trainer, policy_id=policy_id, agent_index=agent_index, featurize_fn=featurize_fn
     )

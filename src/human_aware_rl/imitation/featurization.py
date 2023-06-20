@@ -14,7 +14,7 @@ def create_featurize_fn(idx, mdp, mlam):
 def create_standard_fn(mdp, mlam):
     def standard_featurize(states, actions):
         state = states[-1]
-        mdp.featurize_state(state, mlam)
+        return mdp.featurize_state(state, mlam)
 
     return standard_featurize
 

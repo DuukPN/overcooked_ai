@@ -244,8 +244,8 @@ if __name__ == "__main__":
         scripted_agent_1 = DummyAI(1, layout)
 
     if part == "ppo":
-        ppo_agent_0 = rllib.load_agent(ppo_dict[layout], agent_index=0)
-        ppo_agent_1 = rllib.load_agent(ppo_dict[layout], agent_index=1)
+        ppo_agent_0 = rllib.load_agent(ppo_dict[layout], featurize_fn=standard_featurize_fn, agent_index=0)
+        ppo_agent_1 = rllib.load_agent(ppo_dict[layout], featurize_fn=standard_featurize_fn, agent_index=1)
 
     bc_policy = BehaviorCloningPolicy.from_model_dir(os.path.join(bc_dir, f"bc_{bc_idx}" if bc_idx else 'bc', layout))
     bc_agent_0 = rllib.RlLibAgent(bc_policy, 0, current_featurize_fn)
