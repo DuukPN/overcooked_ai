@@ -26,7 +26,7 @@ from overcooked_ai_py.utils import mean_and_std_err
 
 
 def get_human_human_trajectories(
-    layouts, dataset_type="train", data_path=None, **kwargs
+    layouts, dataset_type="train", data_path=None, featurize_fn=None, **kwargs
 ):
     """
     Get human-human trajectories for a layout. Automatically
@@ -63,7 +63,7 @@ def get_human_human_trajectories(
     # For each data path, load data once and parse trajectories for all corresponding layouts
     for data_path in data_path_to_layouts:
         curr_data = get_trajs_from_data(
-            data_path, layouts=data_path_to_layouts[data_path], **kwargs
+            data_path, layouts=data_path_to_layouts[data_path], featurize_fn=featurize_fn, **kwargs
         )[0]
         data = append_trajectories(data, curr_data)
 
@@ -165,7 +165,7 @@ def csv_to_df_pickle(
 #############################
 
 
-def get_trajs_from_data(data_path, layouts, silent=True, **kwargs):
+def get_trajs_from_data(data_path, layouts, featurize_fn=None, silent=True, **kwargs):
     """
     Converts and returns trajectories from dataframe at `data_path` to overcooked trajectories.
     """
@@ -175,7 +175,7 @@ def get_trajs_from_data(data_path, layouts, silent=True, **kwargs):
     main_trials = pd.read_pickle(data_path)
 
     trajs, info = convert_joint_df_trajs_to_overcooked_single(
-        main_trials, layouts, silent=silent, **kwargs
+        main_trials, layouts, featurize_fn=featurize_fn, silent=silent, **kwargs
     )
 
     return trajs, info

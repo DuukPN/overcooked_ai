@@ -805,7 +805,7 @@ class DummyAI:
     Randomly samples actions. Used for debugging
     """
 
-    def action(self, state):
+    def action(self, states, actions):
         [action] = random.sample(
             [
                 Action.STAY,
@@ -836,7 +836,7 @@ class DummyComputeAI(DummyAI):
         super(DummyComputeAI, self).__init__()
         self.compute_unit_iters = int(compute_unit_iters)
 
-    def action(self, state):
+    def action(self, states, actions):
         # Randomly sample amount of time to busy wait
         iters = random.randint(1, 10) * self.compute_unit_iters
 
@@ -850,7 +850,7 @@ class DummyComputeAI(DummyAI):
                 val += 2
 
         # Return randomly sampled action
-        return super(DummyComputeAI, self).action(state)
+        return super(DummyComputeAI, self).action(states, actions)
 
 
 class StayAI:
@@ -858,7 +858,7 @@ class StayAI:
     Always returns "stay" action. Used for debugging
     """
 
-    def action(self, state):
+    def action(self, states, actions):
         return Action.STAY, None
 
     def reset(self):
@@ -936,7 +936,7 @@ class TutorialAI:
         self.curr_phase = -1
         self.curr_tick = -1
 
-    def action(self, state):
+    def action(self, states, actions):
         self.curr_tick += 1
         if self.curr_phase == 0:
             return (

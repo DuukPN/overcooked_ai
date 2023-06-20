@@ -17,7 +17,7 @@ class Agent(object):
     def __init__(self):
         self.reset()
 
-    def action(self, state):
+    def action(self, states, actions):
         """
         Should return an action, and an action info dictionary.
         If collecting trajectories of the agent with OvercookedEnv, the action
@@ -116,8 +116,8 @@ class AgentGroup(object):
                 allow_duplicate_agents
             ), "All agents should be separate instances, unless allow_duplicate_agents is set to true"
 
-    def joint_action(self, state):
-        actions_and_probs_n = tuple(a.action(state) for a in self.agents)
+    def joint_action(self, states, actions):
+        actions_and_probs_n = tuple(a.action(states, actions) for a in self.agents)
         return actions_and_probs_n
 
     def set_mdp(self, mdp):
@@ -150,18 +150,18 @@ class AgentPair(AgentGroup):
         assert self.n == 2
         self.a0, self.a1 = self.agents
 
-    def joint_action(self, state):
+    def joint_action(self, states, actions):
         if self.a0 is self.a1:
             # When using the same instance of an agent for self-play,
             # reset agent index at each turn to prevent overwriting it
             self.a0.set_agent_index(0)
-            action_and_infos_0 = self.a0.action(state)
+            action_and_infos_0 = self.a0.action(states, actions)
             self.a1.set_agent_index(1)
-            action_and_infos_1 = self.a1.action(state)
+            action_and_infos_1 = self.a1.action(states, actions)
             joint_action_and_infos = (action_and_infos_0, action_and_infos_1)
             return joint_action_and_infos
         else:
-            return super().joint_action(state)
+            return super().joint_action(states, actions)
 
 
 class NNPolicy(object):
@@ -198,7 +198,8 @@ class AgentFromPolicy(Agent):
         self.policy = policy
         self.reset()
 
-    def action(self, state):
+    def action(self, states, actions):
+        state = states[-1]
         return self.actions([state], [self.agent_index])[0]
 
     def actions(self, states, agent_indices):
@@ -233,7 +234,7 @@ class RandomAgent(Agent):
         self.all_actions = all_actions
         self.custom_wait_prob = custom_wait_prob
 
-    def action(self, state):
+    def action(self, states, actions):
         action_probs = np.zeros(Action.NUM_ACTIONS)
         legal_actions = list(Action.MOTION_ACTIONS)
         if self.all_actions:
@@ -265,7 +266,7 @@ class StayAgent(Agent):
     def __init__(self, sim_threads=None):
         self.sim_threads = sim_threads
 
-    def action(self, state):
+    def action(self, states, actions):
         a = Action.STAY
         return a, {}
 
@@ -283,7 +284,7 @@ class FixedPlanAgent(Agent):
         self.plan = plan
         self.i = 0
 
-    def action(self, state):
+    def action(self, states, actions):
         if self.i >= len(self.plan):
             return Action.STAY, {}
         curr_action = self.plan[self.i]
@@ -344,7 +345,8 @@ class GreedyHumanModel(Agent):
             actions_and_infos_n.append(self.action(state))
         return actions_and_infos_n
 
-    def action(self, state):
+    def action(self, states, actions):
+        state = states[-1]
         possible_motion_goals = self.ml_action(state)
 
         # Once we have identified the motion goals for the medium
@@ -594,7 +596,8 @@ class SampleAgent(Agent):
     def __init__(self, agents):
         self.agents = agents
 
-    def action(self, state):
+    def action(self, states, actions):
+        state = states[-1]
         action_probs = np.zeros(Action.NUM_ACTIONS)
         for agent in self.agents:
             action_probs += agent.action(state)[1]["action_probs"]

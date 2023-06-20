@@ -140,7 +140,7 @@ def df_traj_to_python_joint_traj(
 
 
 def convert_joint_df_trajs_to_overcooked_single(
-    main_trials, layouts, silent=False, **kwargs
+    main_trials, layouts, featurize_fn=None, silent=False, **kwargs
 ):
     """
     Takes in a dataframe `main_trials` containing joint trajectories, and extract trajectories of workers `worker_ids`
@@ -194,7 +194,7 @@ def convert_joint_df_trajs_to_overcooked_single(
 
             # Convert joint trajectories to single agent trajectories, appending recovered info to the `trajectories` dict
             joint_state_trajectory_to_single(
-                single_agent_trajectories, joint_traj_data, human_idx, **kwargs
+                single_agent_trajectories, joint_traj_data, human_idx, featurize_fn=featurize_fn, **kwargs
             )
 
     if not silent:
@@ -225,6 +225,7 @@ def joint_state_trajectory_to_single(
     joint_traj_data,
     player_indices_to_convert=None,
     featurize_states=True,
+    featurize_fn=None,
     silent=False,
     **kwargs
 ):
@@ -255,7 +256,10 @@ def joint_state_trajectory_to_single(
 
             if featurize_states:
                 action = np.array([Action.ACTION_TO_INDEX[action]]).astype(int)
-                state = env.featurize_state_mdp(state)[agent_idx]
+                if featurize_fn:
+                    state = featurize_fn(states[:i+1], joint_actions[:i])[agent_idx]
+                else:
+                    state = env.featurize_state_mdp(state)[agent_idx]
 
             ep_obs.append(state)
             ep_acts.append(action)

@@ -101,11 +101,11 @@ def get_bc_params(**args_to_override):
     Note: Even though children can share keys, for simplicity, we enforce the condition that all keys at all levels must be distict
     """
     global _params_initalized, DEFAULT_BC_PARAMS
-    if not _params_initalized:
-        DEFAULT_BC_PARAMS["observation_shape"] = _get_observation_shape(
-            DEFAULT_BC_PARAMS
-        )
-        _params_initalized = False
+    # if not _params_initalized:
+    #     DEFAULT_BC_PARAMS["observation_shape"] = _get_observation_shape(
+    #         DEFAULT_BC_PARAMS
+    #     )
+    #     _params_initalized = False
     params = copy.deepcopy(DEFAULT_BC_PARAMS)
 
     for arg, val in args_to_override.items():
@@ -147,7 +147,7 @@ def _pad(sequences, maxlen=None, default=0):
 
 def load_data(bc_params, verbose=False):
     processed_trajs = get_human_human_trajectories(
-        **bc_params["data_params"], silent=not verbose
+        **bc_params["data_params"], featurize_fn=bc_params["featurize_fn"], silent=not verbose
     )
     inputs, targets = (
         processed_trajs["ep_states"],
@@ -290,6 +290,7 @@ def save_bc_model(model_dir, model, bc_params, verbose=False):
         print("Saving bc model at ", model_dir)
     model.save(model_dir, save_format="tf")
     with open(os.path.join(model_dir, "metadata.pickle"), "wb") as f:
+        del bc_params["featurize_fn"]
         pickle.dump(bc_params, f)
 
 
@@ -328,8 +329,8 @@ def evaluate_bc_model(model, bc_params, verbose=False):
     base_ae = _get_base_ae(bc_params)
     base_env = base_ae.env
 
-    def featurize_fn(state):
-        return base_env.featurize_state_mdp(state)
+    def featurize_fn(states, actions):
+        return base_env.featurize_state_mdp(states[-1])
 
     # Wrap Keras models in rllib policies
     agent_0_policy = BehaviorCloningPolicy.from_model(

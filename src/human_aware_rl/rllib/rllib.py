@@ -62,7 +62,7 @@ class RlLibAgent(Agent):
         else:
             self.rnn_state = []
 
-    def action_probabilities(self, state):
+    def action_probabilities(self, states, actions):
         """
         Arguments:
             - state (Overcooked_mdp.OvercookedState) object encoding the global view of the environment
@@ -70,7 +70,7 @@ class RlLibAgent(Agent):
             - Normalized action probabilities determined by self.policy
         """
         # Preprocess the environment state
-        obs = self.featurize(state, debug=False)
+        obs = self.featurize(states, actions, debug=False)
         my_obs = obs[self.agent_index]
 
         # Compute non-normalized log probabilities from the underlying model
@@ -81,7 +81,7 @@ class RlLibAgent(Agent):
         # Softmax in numpy to convert logits to normalized probabilities
         return softmax(logits)
 
-    def action(self, state):
+    def action(self, states, actions):
         """
         Arguments:
             - state (Overcooked_mdp.OvercookedState) object encoding the global view of the environment
@@ -90,7 +90,7 @@ class RlLibAgent(Agent):
             - action_info (dict) that stores action probabilities under 'action_probs' key
         """
         # Preprocess the environment state
-        obs = self.featurize(state)
+        obs = self.featurize(states, actions)
         my_obs = obs[self.agent_index]
 
         # Use Rllib.Policy class to compute action argmax and action probabilities

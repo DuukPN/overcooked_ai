@@ -448,7 +448,8 @@ class OvercookedEnv(object):
             s_t = self.state
 
             # Getting actions and action infos (optional) for both agents
-            joint_action_and_infos = agent_pair.joint_action(s_t)
+            joint_action_and_infos = agent_pair.joint_action([x[0] for x in trajectory] + [s_t],
+                                                             [x[1] for x in trajectory])
             a_t, a_info_t = zip(*joint_action_and_infos)
             assert all(a in Action.ALL_ACTIONS for a in a_t)
             assert all(type(a_info) is dict for a_info in a_info_t)
