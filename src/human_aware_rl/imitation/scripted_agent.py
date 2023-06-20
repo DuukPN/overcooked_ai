@@ -1006,7 +1006,7 @@ class DummyAI(Agent):
         action = self.takeAction(state)
         # print("Doing " + str(action))
 
-        return action, None
+        return action, {}
 
         [action] = random.sample(
             [
@@ -1019,7 +1019,7 @@ class DummyAI(Agent):
             ],
             1,
         )
-        return action, None
+        return action, {}
 
     def reset(self):
         pass

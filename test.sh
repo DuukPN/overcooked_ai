@@ -12,6 +12,6 @@ module load 2022r2
 module load miniconda3
 
 conda deactivate
-conda activate /scratch/dniemantsverdr/env2
+conda activate ~/env
 
 srun python /scratch/dniemantsverdr/overcooked_ai/test.py

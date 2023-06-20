@@ -869,8 +869,8 @@ if __name__ == "__main__":
     hproxy_agent_0 = rllib.RlLibAgent(hproxy_policy, 0, standard_featurize_fn)
     hproxy_agent_1 = rllib.RlLibAgent(hproxy_policy, 1, standard_featurize_fn)
 
-    scripted_agent_0 = DummyAI(0)
-    scripted_agent_1 = DummyAI(1)
+    scripted_agent_0 = DummyAI(0, layout)
+    scripted_agent_1 = DummyAI(1, layout)
 
     ppo_agent_0 = rllib.load_agent(ppo_dict[layout], agent_index=0)
     ppo_agent_1 = rllib.load_agent(ppo_dict[layout], agent_index=1)
@@ -899,6 +899,7 @@ if __name__ == "__main__":
             num_games=eval_params["num_games"]
         )
         raw_file.write(f"{name}\n{results['ep_returns']}\n\n")
+        results = None
 
         name = f"{tests[bc_idx]}+H_proxy_1"
         ap = AgentPair(hproxy_agent_0, bc_agent_1)
@@ -907,6 +908,7 @@ if __name__ == "__main__":
             num_games=eval_params["num_games"]
         )
         raw_file.write(f"{name}\n{results['ep_returns']}\n\n")
+        results = None
 
         # PPO tests
         name = f"{tests[bc_idx]}+PPO_0"
@@ -916,6 +918,7 @@ if __name__ == "__main__":
             num_games=eval_params["num_games"]
         )
         raw_file.write(f"{name}\n{results['ep_returns']}\n\n")
+        results = None
 
         name = f"{tests[bc_idx]}+PPO_1"
         ap = AgentPair(ppo_agent_0, bc_agent_1)
@@ -924,6 +927,7 @@ if __name__ == "__main__":
             num_games=eval_params["num_games"]
         )
         raw_file.write(f"{name}\n{results['ep_returns']}\n\n")
+        results = None
 
         # Scripted tests
         name = f"{tests[bc_idx]}+Scripted_0"
@@ -933,6 +937,7 @@ if __name__ == "__main__":
             num_games=eval_params["num_games"]
         )
         raw_file.write(f"{name}\n{results['ep_returns']}\n\n")
+        results = None
 
         name = f"{tests[bc_idx]}+Scripted_1"
         ap = AgentPair(scripted_agent_0, bc_agent_1)
@@ -941,3 +946,4 @@ if __name__ == "__main__":
             num_games=eval_params["num_games"]
         )
         raw_file.write(f"{name}\n{results['ep_returns']}\n\n")
+        results = None
