@@ -2,7 +2,7 @@
 #
 #SBATCH --job-name="bc_experiment"
 #SBATCH --partition=compute
-#SBATCH --time=08:00:00
+#SBATCH --time=05:00:00
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=3
 #SBATCH --mem-per-cpu=16GB

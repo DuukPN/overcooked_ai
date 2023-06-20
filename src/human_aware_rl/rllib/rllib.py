@@ -676,7 +676,7 @@ def gen_trainer_from_params(params):
         init_params = {
             "ignore_reinit_error": True,
             "include_dashboard": False,
-            "_temp_dir": os.path.join(os.path.dirname(os.path.abspath(__file__)), "tmp"),
+            "_temp_dir": params["ray_params"]["temp_dir"],
             "log_to_driver": params["verbose"],
             "logging_level": logging.INFO
             if params["verbose"]
