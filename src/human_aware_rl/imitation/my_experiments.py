@@ -198,6 +198,14 @@ if __name__ == "__main__":
         print(f"Experiment {bc_idx} was already completed. To protect previous data, this experiment will not be repeated.")
         sys.exit(0)
 
+    # for layout in [
+    #     "random3",  # counter circuit
+    #     "coordination_ring",
+    #     "cramped_room",
+    #     "random0",  # forced coordination
+    #     "asymmetric_advantages",
+    # ]:
+
     params_to_override = {
         # The maps to train on
         "layouts": [layout],
@@ -220,16 +228,9 @@ if __name__ == "__main__":
     standard_featurize_fn = create_featurize_fn(0, mdp, mlam)
     current_featurize_fn = create_featurize_fn(bc_idx, mdp, mlam)
 
-    for layout in [
-        "random3",  # counter circuit
-        "coordination_ring",
-        "cramped_room",
-        "random0",  # forced coordination
-        "asymmetric_advantages",
-    ]:
-        train_all_agents(bc_params, layout, bc_idx, standard_featurize_fn, current_featurize_fn, False)
-    else:
-        sys.exit(0)
+    #     train_all_agents(bc_params, layout, bc_idx, standard_featurize_fn, current_featurize_fn, False)
+    # else:
+    #     sys.exit(0)
 
     # Create agents
 
@@ -256,7 +257,7 @@ if __name__ == "__main__":
     if not os.path.isdir(result_dir):
         os.mkdir(result_dir)
 
-    tests = ["BC", "BC1", "BC2"]
+    tests = ["BC", "BC1", "BC2", "BC3", "BC4", "BC5"]
     eval_params = bc_params["evaluation_params"]
 
     if part == "hproxy":

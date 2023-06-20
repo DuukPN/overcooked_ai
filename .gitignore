@@ -1,4 +1,5 @@
 src/human_aware_rl/imitation/reproduced_results
+src/human_aware_rl/rllib/tmp
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
