@@ -150,8 +150,8 @@ def train_hproxy_agents(bc_params, layout):
         train_bc_model(target_dir, bc_params, split=2, verbose=True)
 
 
-def create_featurize_1(self):
-    def featurize_state(overcooked_state, mlam, num_pots=2, **kwargs):
+def create_featurize_1(self, mlam):
+    def featurize_state(overcooked_state, num_pots=2, **kwargs):
         """
         Encode state with some manually designed features. Works for arbitrary number of players
 
@@ -407,7 +407,7 @@ def create_featurize_1(self):
 
             # Adjacent features info
             for direction, pos_and_feat in enumerate(
-                self.get_adjacent_features(player)
+                    self.get_adjacent_features(player)
             ):
                 _, feat = pos_and_feat
                 all_features["p{}_wall_{}".format(i, direction)] = (
@@ -841,7 +841,10 @@ if __name__ == "__main__":
     #     "asymmetric_advantages",
     # ]:
 
+    # Process command line arguments
     layout = sys.argv[1] if len(sys.argv) > 1 else "coordination_ring"
+    bc_idx = int(sys.argv[2]) if len(sys.argv) > 2 else 0
+    part = sys.argv[3] if len(sys.argv) > 3 else "hproxy"
 
     params_to_override = {
         # The maps to train on
@@ -865,18 +868,21 @@ if __name__ == "__main__":
 
     standard_featurize_fn = evaluator.env.featurize_state_mdp
 
-    hproxy_policy = BehaviorCloningPolicy.from_model_dir(os.path.join(bc_dir, "hproxy", layout))
-    hproxy_agent_0 = rllib.RlLibAgent(hproxy_policy, 0, standard_featurize_fn)
-    hproxy_agent_1 = rllib.RlLibAgent(hproxy_policy, 1, standard_featurize_fn)
+    if part == "ppo":
+        hproxy_policy = BehaviorCloningPolicy.from_model_dir(os.path.join(bc_dir, "hproxy", layout))
+        hproxy_agent_0 = rllib.RlLibAgent(hproxy_policy, 0, standard_featurize_fn)
+        hproxy_agent_1 = rllib.RlLibAgent(hproxy_policy, 1, standard_featurize_fn)
 
-    scripted_agent_0 = DummyAI(0, layout)
-    scripted_agent_1 = DummyAI(1, layout)
+    if part == "script":
+        scripted_agent_0 = DummyAI(0, layout)
+        scripted_agent_1 = DummyAI(1, layout)
 
-    ppo_agent_0 = rllib.load_agent(ppo_dict[layout], agent_index=0)
-    ppo_agent_1 = rllib.load_agent(ppo_dict[layout], agent_index=1)
+    if part == "ppo":
+        ppo_agent_0 = rllib.load_agent(ppo_dict[layout], agent_index=0)
+        ppo_agent_1 = rllib.load_agent(ppo_dict[layout], agent_index=1)
 
-    featurize_fns = [standard_featurize_fn]
-    bc_idx = int(sys.argv[2]) if len(sys.argv) > 2 else 0
+    featurize_fns = [standard_featurize_fn, create_featurize_1(evaluator.env.mdp, evaluator.env.mlam),
+                     create_featurize_2(evaluator.env.mdp, evaluator.env.mlam)]
 
     bc_policy = BehaviorCloningPolicy.from_model_dir(os.path.join(bc_dir, f"bc{bc_idx if bc_idx else ''}", layout))
     bc_agent_0 = rllib.RlLibAgent(bc_policy, 0, featurize_fns[bc_idx])
@@ -888,62 +894,62 @@ if __name__ == "__main__":
     if not os.path.isdir(result_dir):
         os.mkdir(result_dir)
 
-    tests = ["BC"]
+    tests = ["BC", "BC1", "BC2"]
     eval_params = bc_params["evaluation_params"]
-    with open(os.path.join(result_dir, f"{layout}_raw.txt"), "w") as raw_file:
-        # H_proxy tests
-        name = f"{tests[bc_idx]}+H_proxy_0"
-        ap = AgentPair(bc_agent_0, hproxy_agent_1)
-        results = evaluator.evaluate_agent_pair(
-            ap,
-            num_games=eval_params["num_games"]
-        )
-        raw_file.write(f"{name}\n{results['ep_returns']}\n\n")
-        results = None
 
-        name = f"{tests[bc_idx]}+H_proxy_1"
-        ap = AgentPair(hproxy_agent_0, bc_agent_1)
-        results = evaluator.evaluate_agent_pair(
-            ap,
-            num_games=eval_params["num_games"]
-        )
-        raw_file.write(f"{name}\n{results['ep_returns']}\n\n")
-        results = None
+    if part == "hproxy":
+        with open(os.path.join(result_dir, f"{layout}_hproxy_raw.txt"), "w") as raw_file:
+            # H_proxy tests
+            name = f"{tests[bc_idx]}+H_proxy_0"
+            ap = AgentPair(bc_agent_0, hproxy_agent_1)
+            results = evaluator.evaluate_agent_pair(
+                ap,
+                num_games=eval_params["num_games"]
+            )
+            raw_file.write(f"{name}\n{results['ep_returns']}\n\n")
 
-        # PPO tests
-        name = f"{tests[bc_idx]}+PPO_0"
-        ap = AgentPair(bc_agent_0, ppo_agent_1)
-        results = evaluator.evaluate_agent_pair(
-            ap,
-            num_games=eval_params["num_games"]
-        )
-        raw_file.write(f"{name}\n{results['ep_returns']}\n\n")
-        results = None
+            name = f"{tests[bc_idx]}+H_proxy_1"
+            ap = AgentPair(hproxy_agent_0, bc_agent_1)
+            results = evaluator.evaluate_agent_pair(
+                ap,
+                num_games=eval_params["num_games"]
+            )
+            raw_file.write(f"{name}\n{results['ep_returns']}\n\n")
 
-        name = f"{tests[bc_idx]}+PPO_1"
-        ap = AgentPair(ppo_agent_0, bc_agent_1)
-        results = evaluator.evaluate_agent_pair(
-            ap,
-            num_games=eval_params["num_games"]
-        )
-        raw_file.write(f"{name}\n{results['ep_returns']}\n\n")
-        results = None
+    if part == "ppo":
+        with open(os.path.join(result_dir, f"{layout}_ppo_raw.txt"), "w") as raw_file:
+            # PPO tests
+            name = f"{tests[bc_idx]}+PPO_0"
+            ap = AgentPair(bc_agent_0, ppo_agent_1)
+            results = evaluator.evaluate_agent_pair(
+                ap,
+                num_games=eval_params["num_games"]
+            )
+            raw_file.write(f"{name}\n{results['ep_returns']}\n\n")
 
-        # Scripted tests
-        name = f"{tests[bc_idx]}+Scripted_0"
-        ap = AgentPair(bc_agent_0, scripted_agent_1)
-        results = evaluator.evaluate_agent_pair(
-            ap,
-            num_games=eval_params["num_games"]
-        )
-        raw_file.write(f"{name}\n{results['ep_returns']}\n\n")
-        results = None
+            name = f"{tests[bc_idx]}+PPO_1"
+            ap = AgentPair(ppo_agent_0, bc_agent_1)
+            results = evaluator.evaluate_agent_pair(
+                ap,
+                num_games=eval_params["num_games"]
+            )
+            raw_file.write(f"{name}\n{results['ep_returns']}\n\n")
 
-        name = f"{tests[bc_idx]}+Scripted_1"
-        ap = AgentPair(scripted_agent_0, bc_agent_1)
-        results = evaluator.evaluate_agent_pair(
-            ap,
-            num_games=eval_params["num_games"]
-        )
-        raw_file.write(f"{name}\n{results['ep_returns']}\n\n")
-        results = None
+    if part == "script":
+        with open(os.path.join(result_dir, f"{layout}_script_raw.txt"), "w") as raw_file:
+            # Scripted tests
+            name = f"{tests[bc_idx]}+Scripted_0"
+            ap = AgentPair(bc_agent_0, scripted_agent_1)
+            results = evaluator.evaluate_agent_pair(
+                ap,
+                num_games=eval_params["num_games"]
+            )
+            raw_file.write(f"{name}\n{results['ep_returns']}\n\n")
+
+            name = f"{tests[bc_idx]}+Scripted_1"
+            ap = AgentPair(scripted_agent_0, bc_agent_1)
+            results = evaluator.evaluate_agent_pair(
+                ap,
+                num_games=eval_params["num_games"]
+            )
+            raw_file.write(f"{name}\n{results['ep_returns']}\n\n")
