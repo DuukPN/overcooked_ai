@@ -125,10 +125,10 @@ def fuck_around_and_find_out():
     # bc_params = get_bc_params(**params_to_override)
     # train_bc_model(os.path.join(bc_dir, "train", "my_agent"), bc_params, split=1, verbose=True)
 
-    model = BehaviorCloningPolicy.from_model_dir(os.path.join(bc_dir, "train", "my_agent"))
+    # model = BehaviorCloningPolicy.from_model_dir(os.path.join(bc_dir, "train", "my_agent"))
 
-    if True:
-        sys.exit(0)
+    import time
+    time.sleep(4000)
 
 
 def train_all_agents(bc_params, layout, bc_idx, standard_featurize_fn, featurize_fn, terminate=True):
