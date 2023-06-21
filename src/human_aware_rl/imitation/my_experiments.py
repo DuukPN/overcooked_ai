@@ -169,6 +169,7 @@ if __name__ == "__main__":
         "random0": 90,  # forced coordination
         "asymmetric_advantages": 120,
     }
+    epoch_multiplier = [1, 1, 1, 1.5, 2, 2.5]
 
     # Path to each PPO agent
     ppo_dict = {
@@ -212,12 +213,12 @@ if __name__ == "__main__":
         # The map to evaluate on
         "layout_name": layout,
         "data_path": CLEAN_2019_HUMAN_DATA_ALL,
-        "epochs": epoch_dict[layout],
+        "epochs": int(epoch_dict[layout] * epoch_multiplier[bc_idx]),
         "old_dynamics": True,
         "num_games": 100,
     }
     bc_params = get_bc_params(**params_to_override)
-    shapes = [(96,), (50,), (54,)]
+    shapes = [(96,), (50,), (54,), (114,), (156,), (204,)]
     bc_params["observation_shape"] = shapes[bc_idx]
     evaluator = get_base_ae(
         bc_params["mdp_params"],
