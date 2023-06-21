@@ -252,7 +252,7 @@ if __name__ == "__main__":
     bc_agent_0 = rllib.RlLibAgent(bc_policy, 0, current_featurize_fn)
     bc_agent_1 = rllib.RlLibAgent(bc_policy, 1, current_featurize_fn)
 
-    print(f"Successfully created all agents\nRunning experiment {bc_idx}")
+    print(f"Successfully created all agents\nRunning experiment {bc_idx} on {layout} part {part}")
 
     result_dir = os.path.join(bc_dir, "results", f"experiment{bc_idx}")
     if not os.path.isdir(result_dir):
