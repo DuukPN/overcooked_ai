@@ -217,7 +217,7 @@ if __name__ == "__main__":
         "num_games": 100,
     }
     bc_params = get_bc_params(**params_to_override)
-    shapes = [(96,), (50,)]
+    shapes = [(96,), (50,), (54,)]
     bc_params["observation_shape"] = shapes[bc_idx]
     evaluator = get_base_ae(
         bc_params["mdp_params"],
