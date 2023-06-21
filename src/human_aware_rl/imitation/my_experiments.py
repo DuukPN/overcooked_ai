@@ -156,7 +156,7 @@ def train_hproxy_agents(bc_params, layout):
 
 if __name__ == "__main__":
     completed_experiments = {0}
-    fuck_around_and_find_out()
+    # fuck_around_and_find_out()
 
     # random 3 is counter_circuit
     # random 0 is forced coordination
