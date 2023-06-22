@@ -17,8 +17,14 @@ ordered_layouts = [
     "random0",  # forced coordination
     "random3",  # counter circuit
 ]
+parts = [
+    "hproxy",
+    "ppo",
+    "script",
+]
 
-def visualize(res_dir):
+
+def visualize(bc_idx):
     algos_to_name = {
         "BC+H_proxy_0": "BC+H$_{Proxy}$",
         "BC+H_proxy_1": None,
@@ -29,23 +35,33 @@ def visualize(res_dir):
     }
 
     histogram_algos_5_layout = {
-        "bc0": (
+        "bc": (
             ["BC+H_proxy_0",
-             "BC+H_proxy_1",
              "BC+PPO_0",
-             "BC+PPO_1",
              "BC+Scripted_0",
+             "BC+H_proxy_1",
+             "BC+PPO_1",
              "BC+Scripted_1"],
             None
         )
     }
 
     final_data = defaultdict(lambda: defaultdict(int))
+    pattern = re.compile(r'^(?P<algo1>.*)\r?\n\[(?P<values1>([^]]|\n)+)]\r?\n\r?\n(?P<algo2>.*)\r?\n\[(?P<values2>([^]]|\n)+)]\r?\n\r?\n$')
+    res_dir = os.path.join(bc_dir, "results", f"experiment{bc_idx}")
     for layout in ordered_layouts:
-        with open(os.path.join(res_dir, f"{layout}_raw.txt"), "r") as f:
-            # TODO: parse shit
-            pass
+        for part in parts:
+            with open(os.path.join(res_dir, f"{layout}_{part}_raw.txt"), "r") as f:
+                content = f.read()
+                match = pattern.match(content)
+                v1 = [int(n) for n in match.group("values1").split()]
+                v2 = [int(n) for n in match.group("values2").split()]
+                t1 = (np.mean(v1), np.std(v1) / np.sqrt(len(v1)))
+                t2 = (np.mean(v2), np.std(v2) / np.sqrt(len(v2)))
+                final_data[layout][match.group("algo1")] = t1
+                final_data[layout][match.group("algo2")] = t2
 
+    print(final_data)
     mean_by_algo, std_by_algo = means_and_stds_by_algo(final_data)
 
     # Code from ipynb
@@ -72,7 +88,7 @@ def visualize(res_dir):
         ind = np.arange(N)
         width = 0.1
         if hist_type not in ['humanai', 'humanai_base']:
-            deltas = [-2.9, -1.5, -0.5, 0.5, 1.9, 2.9, 3.9]
+            deltas = [-1.5, -0.5, 0.5, 1.9, 2.9, 3.9]
         else:
             deltas = [-2.9, -1.5, -0.5, 0.5, 1.9, 2.9, 3.9]  # [-1, 0, 1, 2, 2.5, 3]
 
@@ -131,7 +147,7 @@ def visualize(res_dir):
 
         ax0.set_ylim(0, 300)
 
-        plt.savefig("data/images/" + hist_type + "_experiments.eps", format='eps', bbox_inches='tight')
+        plt.savefig(os.path.join(res_dir, hist_type + "_experiments.eps"), format='eps', bbox_inches='tight')
         plt.show()
 
 
@@ -142,14 +158,12 @@ def get_algorithm_color(alg):
     other_col = '#4BACC6' # thiel
     other_other_col = "#2d6777"
     human_baseline_col = "#aeaeae"#"#c1c1c1"
-    if alg == 'PBT':
-        return other_col#opt_baseline_col
-    elif alg == 'PPO_SP':
-        return other_other_col #'#35ce47'#'#0000cc'
-    elif alg == 'BC_Train':
-        return ours_other_col #"#3884c9"
-    elif alg == 'BC_Test':
-        return ours_col #'#35ce47'#'#00cc00'
+    if alg[3:-2] == "H_proxy":
+        return human_baseline_col#opt_baseline_col
+    elif alg[3:-2] == "PPO":
+        return ours_other_col #'#35ce47'#'#0000cc'
+    elif alg[3:-2] == "Scripted":
+        return other_other_col #"#3884c9"
     else:
         raise ValueError(alg, "not recognized")
 
@@ -172,7 +186,7 @@ def switch_indices(idx0, idx1, lst):
 
 
 def graph_title(hist_type):
-    return "Performance with human proxy model"
+    return "Performance of behavior cloning model"
 
 
 def means_and_stds_by_algo(full_data):
@@ -191,20 +205,4 @@ def means_and_stds_by_algo(full_data):
 
 
 if __name__ == "__main__":
-    for pre in ["bc", "hproxy"]:
-        for layout in [
-            "random3",  # counter circuit
-            "coordination_ring",
-            "cramped_room",
-            "random0",  # forced coordination
-            "asymmetric_advantages",
-        ]:
-            for i in range(5):
-                with open(os.path.join(bc_dir, "results", pre, f"{layout}_{i}.txt"), "r") as f:
-                    s = f.read()
-                    try:
-                        spl = s.split("'ep_returns': array([")[1].split("])")[0].strip()
-                    except:
-                        continue
-                    rs = [int(x) for x in re.split(r",\s*", spl)]
-                    print(f"{pre} {layout.rjust(21, ' ')} {i}: mean: {np.mean(rs)}, se: {np.std(rs) / np.sqrt(len(rs))}")
+    visualize(0)
